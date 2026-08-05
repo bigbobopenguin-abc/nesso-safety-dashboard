@@ -11,829 +11,70 @@ PAGE = r"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-    <title>Nesso Safety Dashboard</title>
-
-    <style>
-        :root {
-            --background: #0f172a;
-            --panel: #111827;
-            --panel-light: #1f2937;
-            --border: #374151;
-            --text: #f9fafb;
-            --muted: #9ca3af;
-            --accent: #38bdf8;
-            --normal: #1f2937;
-            --near-miss: #92400e;
-            --near-miss-border: #f59e0b;
-            --stf: #991b1b;
-            --stf-border: #ef4444;
-            --ffh: #581c87;
-            --ffh-border: #c084fc;
-            --success: #166534;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            background: var(--background);
-            color: var(--text);
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        .page {
-            width: min(1500px, 96%);
-            margin: 0 auto;
-            padding: 24px 0 40px;
-        }
-
-        h1 {
-            margin: 0 0 6px;
-            font-size: 30px;
-        }
-
-        .subtitle {
-            margin: 0 0 22px;
-            color: var(--muted);
-        }
-
-        .panel {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 18px;
-        }
-
-        .filter-grid {
-            display: grid;
-            grid-template-columns:
-                minmax(180px, 1.2fr)
-                minmax(180px, 1fr)
-                minmax(180px, 1fr)
-                minmax(150px, 0.8fr);
-            gap: 14px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        input,
-        select,
-        button {
-            width: 100%;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--panel-light);
-            color: var(--text);
-            padding: 10px 12px;
-            font-size: 15px;
-        }
-
-        input:focus,
-        select:focus,
-        button:focus {
-            outline: 2px solid var(--accent);
-            outline-offset: 1px;
-        }
-
-        .button-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 14px;
-            flex-wrap: wrap;
-        }
-
-        button {
-            width: auto;
-            min-width: 130px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .primary-button {
-            background: var(--accent);
-            color: #082f49;
-            border-color: var(--accent);
-        }
-
-        .status-message {
-            margin-top: 12px;
-            color: var(--muted);
-            min-height: 20px;
-        }
-
-        .metrics {
-            display: grid;
-            grid-template-columns: repeat(5, minmax(130px, 1fr));
-            gap: 12px;
-            margin-bottom: 18px;
-        }
-
-        .metric {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
-        }
-
-        .metric-label {
-            color: var(--muted);
-            font-size: 13px;
-            margin-bottom: 7px;
-        }
-
-        .metric-value {
-            font-size: 27px;
-            font-weight: 700;
-        }
-
-        .latest-grid {
-            display: grid;
-            grid-template-columns: repeat(
-                auto-fit,
-                minmax(230px, 1fr)
-            );
-            gap: 12px;
-        }
-
-        .worker-card {
-            border: 1px solid var(--border);
-            border-left: 5px solid var(--accent);
-            border-radius: 10px;
-            padding: 14px;
-            background: var(--panel-light);
-        }
-
-        .worker-card.near-miss {
-            background: var(--near-miss);
-            border-left-color: var(--near-miss-border);
-        }
-
-        .worker-card.stf {
-            background: var(--stf);
-            border-left-color: var(--stf-border);
-        }
-
-        .worker-card.ffh {
-            background: var(--ffh);
-            border-left-color: var(--ffh-border);
-        }
-
-        .worker-name {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .event-badge {
-            display: inline-block;
-            border-radius: 999px;
-            padding: 4px 9px;
-            font-size: 13px;
-            font-weight: 700;
-            background: rgba(255, 255, 255, 0.16);
-            margin-bottom: 8px;
-        }
-
-        .small {
-            color: #d1d5db;
-            font-size: 13px;
-            margin: 5px 0;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 1180px;
-        }
-
-        th,
-        td {
-            text-align: left;
-            padding: 10px;
-            border-bottom: 1px solid var(--border);
-            white-space: nowrap;
-            font-size: 14px;
-        }
-
-        th {
-            position: sticky;
-            top: 0;
-            background: #0b1220;
-            color: #dbeafe;
-            z-index: 1;
-        }
-
-        tbody tr:hover {
-            filter: brightness(1.15);
-        }
-
-        tbody tr.near-miss {
-            background: var(--near-miss);
-            border-left: 5px solid var(--near-miss-border);
-        }
-
-        tbody tr.stf {
-            background: var(--stf);
-            border-left: 5px solid var(--stf-border);
-        }
-
-        tbody tr.ffh {
-            background: var(--ffh);
-            border-left: 5px solid var(--ffh-border);
-        }
-
-        .section-title {
-            margin: 0 0 14px;
-            font-size: 20px;
-        }
-
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 12px;
-            color: var(--muted);
-            font-size: 13px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .legend-box {
-            width: 15px;
-            height: 15px;
-            border-radius: 3px;
-        }
-
-        .near-box {
-            background: var(--near-miss);
-            border: 1px solid var(--near-miss-border);
-        }
-
-        .stf-box {
-            background: var(--stf);
-            border: 1px solid var(--stf-border);
-        }
-
-        .ffh-box {
-            background: var(--ffh);
-            border: 1px solid var(--ffh-border);
-        }
-
-        @media (max-width: 950px) {
-            .filter-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .metrics {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 600px) {
-            .filter-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .metrics {
-                grid-template-columns: 1fr;
-            }
-
-            button {
-                width: 100%;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NESSO Safety Intelligence Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--bg:#07111f;--surface:#0d1b2d;--surface2:#12243a;--border:#223955;--text:#f4f8fc;--muted:#91a4ba;--accent:#32b5ff;--accent2:#65d6c4;--warning:#f7b84b;--danger:#ff6474;--critical:#c084fc;--success:#42d392}
+*{box-sizing:border-box} body{margin:0;background:linear-gradient(145deg,#06101d,#0b1830 55%,#07111f);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;min-height:100vh}.page{width:min(1550px,96%);margin:auto;padding:28px 0 44px}.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:20px}.eyebrow{color:var(--accent2);font-size:12px;letter-spacing:.16em;font-weight:800;text-transform:uppercase}.topbar h1{font-size:31px;margin:5px 0 6px}.subtitle{margin:0;color:var(--muted)}.live-pill{background:rgba(66,211,146,.12);border:1px solid rgba(66,211,146,.35);color:#8ff0bd;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:700}.panel,.metric,.chart-card{background:rgba(13,27,45,.92);border:1px solid var(--border);border-radius:15px;box-shadow:0 14px 35px rgba(0,0,0,.18)}.panel{padding:18px;margin-bottom:18px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.section-title{margin:0;font-size:18px}.section-note{color:var(--muted);font-size:12px}.filter-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr .85fr;gap:12px}label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}input,select,button{width:100%;border:1px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text);padding:10px 12px;font-size:14px}input:focus,select:focus,button:focus{outline:2px solid var(--accent);outline-offset:1px}.button-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}.button-row button{width:auto;min-width:116px;cursor:pointer;font-weight:700}.primary{background:var(--accent);border-color:var(--accent);color:#04243a}.status-message{min-height:18px;color:var(--muted);font-size:13px;margin-top:11px}.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}.metric{padding:15px}.metric-label{font-size:12px;color:var(--muted);margin-bottom:7px}.metric-value{font-size:27px;font-weight:800}.metric small{color:var(--muted)}.charts-grid{display:grid;grid-template-columns:1.65fr 1fr;gap:14px;margin-bottom:18px}.chart-card{padding:17px;min-height:340px}.chart-wrap{height:275px}.latest-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}.worker-card{background:linear-gradient(150deg,var(--surface2),#0e1d30);border:1px solid var(--border);border-top:3px solid var(--accent);border-radius:13px;padding:15px;cursor:pointer;transition:.2s}.worker-card:hover{transform:translateY(-2px);border-color:#3d668f}.worker-card.near-miss{border-top-color:var(--warning)}.worker-card.stf{border-top-color:var(--danger)}.worker-card.ffh{border-top-color:var(--critical)}.worker-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.worker-name{font-size:18px;font-weight:800}.event-badge{padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.1);font-size:12px;font-weight:800}.worker-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.worker-stat{background:rgba(3,12,24,.35);border-radius:8px;padding:8px}.worker-stat span{display:block;color:var(--muted);font-size:11px}.worker-stat strong{font-size:14px}.worker-time{color:var(--muted);font-size:11px;margin-top:10px}.table-wrapper{overflow:auto;max-height:570px;border:1px solid var(--border);border-radius:10px}table{width:100%;border-collapse:collapse;min-width:1180px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--border);white-space:nowrap;font-size:13px}th{position:sticky;top:0;background:#091527;color:#cfe6f7;z-index:2}tbody tr:hover{background:#142b45}tbody tr.near-miss{background:rgba(146,64,14,.28)}tbody tr.stf{background:rgba(153,27,27,.26)}tbody tr.ffh{background:rgba(88,28,135,.28)}.legend{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12px}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px}.near-dot{background:var(--warning)}.stf-dot{background:var(--danger)}.ffh-dot{background:var(--critical)}.footer{margin-top:28px;padding:34px 20px;text-align:center;border:1px solid var(--border);border-radius:15px;background:rgba(13,27,45,.92);box-shadow:0 14px 35px rgba(0,0,0,.18)}.footer-title{margin:0;color:var(--text);font-size:21px;font-weight:800}.footer-module{margin:8px 0 2px;color:var(--accent);font-size:15px;font-weight:700}.footer-school{margin:0;color:#d7e4f0;font-size:14px}.footer-divider{width:72px;height:2px;border:0;background:var(--accent2);margin:20px auto}.footer-label{margin:0 0 9px;color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.footer-team{margin:0;color:var(--text);font-size:14px;line-height:1.9}.footer-copy{margin:18px 0 0;color:var(--muted);font-size:12px}@media(max-width:1050px){.filter-grid{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:repeat(2,1fr)}.charts-grid{grid-template-columns:1fr}}@media(max-width:620px){.topbar{display:block}.live-pill{display:inline-block;margin-top:12px}.filter-grid,.metrics{grid-template-columns:1fr}.button-row button{width:100%}}
+</style>
 </head>
-
 <body>
 <div class="page">
-    <h1>Nesso Safety Monitoring Dashboard</h1>
-    <p class="subtitle">
-        Search workers and retrieve sensor records by date, time and event.
+<header class="topbar">
+    <div>
+        <div class="eyebrow">
+            Data Engineering Project · Nanyang Polytechnic
+        </div>
+
+        <h1>NESSO Safety Monitoring Dashboard</h1>
+
+        <p class="subtitle">
+            Interactive incident analytics and worker sensor records.
+        </p>
+    </div>
+</header>
+<section class="panel"><div class="section-head"><h2 class="section-title">Data filters</h2><span class="section-note">Charts and records update together</span></div><div class="filter-grid">
+<div><label>Search worker</label><input id="workerSearch" type="search" list="workerOptions" placeholder="Type worker name"><datalist id="workerOptions"></datalist></div>
+<div><label>Start date and time</label><input id="startDateTime" type="datetime-local"></div>
+<div><label>End date and time</label><input id="endDateTime" type="datetime-local"></div>
+<div><label>Event</label><select id="eventFilter"><option value="">All events</option><option>Standing</option><option>Walking</option><option>Running</option><option>Normal</option><option>Near Miss</option><option>STF</option><option>FFH</option><option>Calibrating</option></select></div>
+</div><div class="button-row"><button id="applyButton" class="primary">Search data</button><button id="todayButton">Today</button><button id="dangerButton">Safety incidents</button><button id="resetButton">Clear filters</button></div><div id="statusMessage" class="status-message">Loading data...</div></section>
+<section class="metrics"><div class="metric"><div class="metric-label">Records found</div><div id="totalCount" class="metric-value">0</div></div><div class="metric"><div class="metric-label">Workers found</div><div id="workerCount" class="metric-value">0</div></div><div class="metric"><div class="metric-label">Near Miss</div><div id="nearMissCount" class="metric-value">0</div></div><div class="metric"><div class="metric-label">STF</div><div id="stfCount" class="metric-value">0</div></div><div class="metric"><div class="metric-label">FFH</div><div id="ffhCount" class="metric-value">0</div></div></section>
+<section class="charts-grid"><article class="chart-card"><div class="section-head"><h2 class="section-title">Daily safety incidents</h2><span class="section-note">Near Miss, STF and FFH by day</span></div><div class="chart-wrap"><canvas id="dailyChart"></canvas></div></article><article class="chart-card"><div class="section-head"><h2 class="section-title">Incident distribution</h2><span class="section-note">Click a segment to filter</span></div><div class="chart-wrap"><canvas id="eventChart"></canvas></div></article></section>
+<section class="panel"><div class="section-head"><h2 class="section-title">Latest worker status</h2><span class="section-note">Click a worker card to filter</span></div><div id="latestWorkers" class="latest-grid">Loading...</div></section>
+<section class="panel"><div class="section-head"><h2 class="section-title">Retrieved records</h2><div class="legend"><span><i class="dot near-dot"></i>Near Miss</span><span><i class="dot stf-dot"></i>STF</span><span><i class="dot ffh-dot"></i>FFH</span></div></div><div class="table-wrapper"><table><thead><tr><th>ID</th><th>Worker</th><th>Timestamp</th><th>Event</th><th>Acceleration</th><th>Gyroscope</th><th>Accel X</th><th>Accel Y</th><th>Accel Z</th><th>Gyro X</th><th>Gyro Y</th><th>Gyro Z</th></tr></thead><tbody id="dataRows"><tr><td colspan="12">Loading...</td></tr></tbody></table></div></section>
+<footer class="footer">
+    <h2 class="footer-title">NESSO Safety Monitoring Dashboard</h2>
+    <p class="footer-module">Data Engineering Project</p>
+    <p class="footer-school">Nanyang Polytechnic</p>
+    <hr class="footer-divider">
+    <p class="footer-label">Developed by</p>
+    <p class="footer-team">
+        Lee En Qi (Andrea)<br>
+        Sia Yong Xing<br>
+        Saniya Maria Sunil
     </p>
-
-    <section class="panel">
-        <h2 class="section-title">Filters</h2>
-
-        <div class="filter-grid">
-            <div>
-                <label for="workerSearch">Search worker</label>
-                <input
-                    id="workerSearch"
-                    type="search"
-                    list="workerOptions"
-                    placeholder="Type worker name"
-                    autocomplete="off"
-                >
-                <datalist id="workerOptions"></datalist>
-            </div>
-
-            <div>
-                <label for="startDateTime">Start date and time</label>
-                <input id="startDateTime" type="datetime-local">
-            </div>
-
-            <div>
-                <label for="endDateTime">End date and time</label>
-                <input id="endDateTime" type="datetime-local">
-            </div>
-
-            <div>
-                <label for="eventFilter">Event</label>
-                <select id="eventFilter">
-                    <option value="">All events</option>
-                    <option value="Standing">Standing</option>
-                    <option value="Walking">Walking</option>
-                    <option value="Running">Running</option>
-                    <option value="Normal">Normal</option>
-                    <option value="Near Miss">Near Miss</option>
-                    <option value="STF">STF</option>
-                    <option value="FFH">FFH</option>
-                    <option value="Calibrating">Calibrating</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="button-row">
-            <button id="applyButton" class="primary-button" type="button">
-                Search data
-            </button>
-
-            <button id="todayButton" type="button">
-                Today
-            </button>
-
-            <button id="dangerButton" type="button">
-                Near Miss + STF
-            </button>
-
-            <button id="resetButton" type="button">
-                Clear filters
-            </button>
-        </div>
-
-        <div id="statusMessage" class="status-message" aria-live="polite">
-            Loading data...
-        </div>
-    </section>
-
-    <section class="metrics">
-        <div class="metric">
-            <div class="metric-label">Records found</div>
-            <div id="totalCount" class="metric-value">0</div>
-        </div>
-
-        <div class="metric">
-            <div class="metric-label">Workers found</div>
-            <div id="workerCount" class="metric-value">0</div>
-        </div>
-
-        <div class="metric">
-            <div class="metric-label">Near Miss</div>
-            <div id="nearMissCount" class="metric-value">0</div>
-        </div>
-
-        <div class="metric">
-            <div class="metric-label">STF</div>
-            <div id="stfCount" class="metric-value">0</div>
-        </div>
-
-        <div class="metric">
-            <div class="metric-label">FFH</div>
-            <div id="ffhCount" class="metric-value">0</div>
-        </div>
-    </section>
-
-    <section class="panel">
-        <h2 class="section-title">Latest worker status</h2>
-        <div id="latestWorkers" class="latest-grid">
-            Loading...
-        </div>
-    </section>
-
-    <section class="panel">
-        <h2 class="section-title">Retrieved records</h2>
-
-        <div class="legend">
-            <div class="legend-item">
-                <span class="legend-box near-box"></span>
-                Near Miss
-            </div>
-
-            <div class="legend-item">
-                <span class="legend-box stf-box"></span>
-                STF
-            </div>
-
-            <div class="legend-item">
-                <span class="legend-box ffh-box"></span>
-                FFH
-            </div>
-        </div>
-
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Worker</th>
-                        <th>Timestamp</th>
-                        <th>Event</th>
-                        <th>Acceleration</th>
-                        <th>Gyroscope</th>
-                        <th>Accel X</th>
-                        <th>Accel Y</th>
-                        <th>Accel Z</th>
-                        <th>Gyro X</th>
-                        <th>Gyro Y</th>
-                        <th>Gyro Z</th>
-                    </tr>
-                </thead>
-
-                <tbody id="dataRows">
-                    <tr>
-                        <td colspan="12">Loading...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
+    <p class="footer-copy">© 2026 Nanyang Polytechnic</p>
+</footer>
 </div>
-
 <script>
-    const workerSearch = document.getElementById("workerSearch");
-    const workerOptions = document.getElementById("workerOptions");
-    const startDateTime = document.getElementById("startDateTime");
-    const endDateTime = document.getElementById("endDateTime");
-    const eventFilter = document.getElementById("eventFilter");
-
-    const statusMessage = document.getElementById("statusMessage");
-    const dataRows = document.getElementById("dataRows");
-    const latestWorkers = document.getElementById("latestWorkers");
-
-    let dangerOnly = false;
-
-    function escapeHtml(value) {
-        return String(value ?? "")
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-    }
-
-    function eventClass(eventName) {
-        if (eventName === "Near Miss") {
-            return "near-miss";
-        }
-
-        if (eventName === "STF") {
-            return "stf";
-        }
-
-        if (eventName === "FFH") {
-            return "ffh";
-        }
-
-        return "";
-    }
-
-    function displayNumber(value, decimals = 3) {
-        const number = Number(value);
-
-        if (!Number.isFinite(number)) {
-            return "-";
-        }
-
-        return number.toFixed(decimals);
-    }
-
-    function convertInputToDatabaseTime(value) {
-        if (!value) {
-            return "";
-        }
-
-        return value.replace("T", " ") + ":00";
-    }
-
-    function buildQuery() {
-        const params = new URLSearchParams();
-
-        const worker = workerSearch.value.trim();
-        const start = convertInputToDatabaseTime(startDateTime.value);
-        const end = convertInputToDatabaseTime(endDateTime.value);
-        const event = eventFilter.value;
-
-        if (worker) {
-            params.set("worker", worker);
-        }
-
-        if (start) {
-            params.set("start", start);
-        }
-
-        if (end) {
-            params.set("end", end);
-        }
-
-        if (event) {
-            params.set("event", event);
-        }
-
-        if (dangerOnly) {
-            params.set("danger_only", "1");
-        }
-
-        params.set("limit", "2000");
-
-        return params.toString();
-    }
-
-    async function loadWorkers() {
-        try {
-            const response = await fetch("/api/workers");
-
-            if (!response.ok) {
-                throw new Error("Could not retrieve worker names.");
-            }
-
-            const workers = await response.json();
-
-            workerOptions.innerHTML = workers
-                .map(
-                    worker =>
-                        `<option value="${escapeHtml(worker)}"></option>`
-                )
-                .join("");
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    async function loadLatest() {
-        try {
-            const response = await fetch("/api/latest");
-
-            if (!response.ok) {
-                throw new Error("Could not retrieve latest worker data.");
-            }
-
-            const data = await response.json();
-            const workerNames = Object.keys(data).sort();
-
-            if (workerNames.length === 0) {
-                latestWorkers.innerHTML = "No worker data is available.";
-                return;
-            }
-
-            latestWorkers.innerHTML = workerNames
-                .map(name => {
-                    const reading = data[name];
-
-                    if (!reading) {
-                        return `
-                            <article class="worker-card">
-                                <div class="worker-name">
-                                    ${escapeHtml(name)}
-                                </div>
-                                <div class="small">No data yet</div>
-                            </article>
-                        `;
-                    }
-
-                    const cssClass = eventClass(reading.event);
-
-                    return `
-                        <article class="worker-card ${cssClass}">
-                            <div class="worker-name">
-                                ${escapeHtml(name)}
-                            </div>
-
-                            <div class="event-badge">
-                                ${escapeHtml(reading.event)}
-                            </div>
-
-                            <div class="small">
-                                Acceleration:
-                                ${displayNumber(
-                                    reading.acceleration_magnitude_g
-                                )} g
-                            </div>
-
-                            <div class="small">
-                                Gyroscope:
-                                ${displayNumber(
-                                    reading.gyroscope_magnitude_deg_s
-                                )} deg/s
-                            </div>
-
-                            <div class="small">
-                                ${escapeHtml(reading.timestamp)}
-                            </div>
-                        </article>
-                    `;
-                })
-                .join("");
-        } catch (error) {
-            latestWorkers.innerHTML =
-                `Latest data error: ${escapeHtml(error.message)}`;
-        }
-    }
-
-    function updateMetrics(summary) {
-        document.getElementById("totalCount").textContent =
-            summary.total_records ?? 0;
-
-        document.getElementById("workerCount").textContent =
-            summary.worker_count ?? 0;
-
-        document.getElementById("nearMissCount").textContent =
-            summary.near_miss_count ?? 0;
-
-        document.getElementById("stfCount").textContent =
-            summary.stf_count ?? 0;
-
-        document.getElementById("ffhCount").textContent =
-            summary.ffh_count ?? 0;
-    }
-
-    function renderRows(readings) {
-        if (readings.length === 0) {
-            dataRows.innerHTML = `
-                <tr>
-                    <td colspan="12">
-                        No records match the selected filters.
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        dataRows.innerHTML = readings
-            .map(reading => {
-                const cssClass = eventClass(reading.event);
-
-                return `
-                    <tr class="${cssClass}">
-                        <td>${escapeHtml(reading.id)}</td>
-                        <td>${escapeHtml(reading.sensor_name)}</td>
-                        <td>${escapeHtml(reading.timestamp)}</td>
-                        <td><strong>${escapeHtml(reading.event)}</strong></td>
-
-                        <td>
-                            ${displayNumber(
-                                reading.acceleration_magnitude_g
-                            )}
-                        </td>
-
-                        <td>
-                            ${displayNumber(
-                                reading.gyroscope_magnitude_deg_s
-                            )}
-                        </td>
-
-                        <td>${displayNumber(reading.accel_x_g)}</td>
-                        <td>${displayNumber(reading.accel_y_g)}</td>
-                        <td>${displayNumber(reading.accel_z_g)}</td>
-
-                        <td>${displayNumber(reading.gyro_x_deg_s)}</td>
-                        <td>${displayNumber(reading.gyro_y_deg_s)}</td>
-                        <td>${displayNumber(reading.gyro_z_deg_s)}</td>
-                    </tr>
-                `;
-            })
-            .join("");
-    }
-
-    async function loadReadings() {
-        statusMessage.textContent = "Searching database...";
-
-        try {
-            const response = await fetch(
-                `/api/readings?${buildQuery()}`
-            );
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(
-                    errorData.error || "Unable to retrieve data."
-                );
-            }
-
-            const data = await response.json();
-
-            renderRows(data.readings);
-            updateMetrics(data.summary);
-
-            statusMessage.textContent =
-                `${data.summary.total_records} record(s) found. ` +
-                `Showing a maximum of ${data.limit} rows.`;
-        } catch (error) {
-            statusMessage.textContent =
-                `Search error: ${error.message}`;
-
-            dataRows.innerHTML = `
-                <tr>
-                    <td colspan="12">
-                        ${escapeHtml(error.message)}
-                    </td>
-                </tr>
-            `;
-        }
-    }
-
-    function setTodayFilter() {
-        const now = new Date();
-
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const day = String(now.getDate()).padStart(2, "0");
-
-        startDateTime.value = `${year}-${month}-${day}T00:00`;
-        endDateTime.value = `${year}-${month}-${day}T23:59`;
-
-        dangerOnly = false;
-        loadReadings();
-    }
-
-    function resetFilters() {
-        workerSearch.value = "";
-        startDateTime.value = "";
-        endDateTime.value = "";
-        eventFilter.value = "";
-        dangerOnly = false;
-
-        loadReadings();
-    }
-
-    document
-        .getElementById("applyButton")
-        .addEventListener("click", () => {
-            dangerOnly = false;
-            loadReadings();
-        });
-
-    document
-        .getElementById("todayButton")
-        .addEventListener("click", setTodayFilter);
-
-    document
-        .getElementById("dangerButton")
-        .addEventListener("click", () => {
-            eventFilter.value = "";
-            dangerOnly = true;
-            loadReadings();
-        });
-
-    document
-        .getElementById("resetButton")
-        .addEventListener("click", resetFilters);
-
-    workerSearch.addEventListener("keydown", event => {
-        if (event.key === "Enter") {
-            dangerOnly = false;
-            loadReadings();
-        }
-    });
-
-    async function initialise() {
-        await loadWorkers();
-        await Promise.all([
-            loadReadings(),
-            loadLatest()
-        ]);
-
-        // Refresh only the latest worker cards every 3 seconds.
-        setInterval(loadLatest, 3000);
-    }
-
-    initialise();
+const workerSearch=document.getElementById('workerSearch'),workerOptions=document.getElementById('workerOptions'),startDateTime=document.getElementById('startDateTime'),endDateTime=document.getElementById('endDateTime'),eventFilter=document.getElementById('eventFilter'),statusMessage=document.getElementById('statusMessage'),dataRows=document.getElementById('dataRows'),latestWorkers=document.getElementById('latestWorkers');let dangerOnly=false,dailyChart,eventChart;
+const esc=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
+function eventClass(e){return e==='Near Miss'?'near-miss':e==='STF'?'stf':e==='FFH'?'ffh':''} function num(v,d=3){v=Number(v);return Number.isFinite(v)?v.toFixed(d):'-'} function dbTime(v){return v?v.replace('T',' ')+':00':''}
+function params(includeLimit=true){const p=new URLSearchParams(),w=workerSearch.value.trim(),s=dbTime(startDateTime.value),e=dbTime(endDateTime.value);if(w)p.set('worker',w);if(s)p.set('start',s);if(e)p.set('end',e);if(eventFilter.value)p.set('event',eventFilter.value);if(dangerOnly)p.set('danger_only','1');if(includeLimit)p.set('limit','2000');return p.toString()}
+async function loadWorkers(){const r=await fetch('/api/workers');const a=await r.json();workerOptions.innerHTML=a.map(x=>`<option value="${esc(x)}"></option>`).join('')}
+async function loadLatest(){try{const r=await fetch('/api/latest');const d=await r.json(),names=Object.keys(d).sort();latestWorkers.innerHTML=names.map(n=>{const x=d[n],c=eventClass(x.event);return `<article class="worker-card ${c}" data-worker="${esc(n)}"><div class="worker-top"><div class="worker-name">${esc(n)}</div><div class="event-badge">${esc(x.event)}</div></div><div class="worker-stats"><div class="worker-stat"><span>Acceleration</span><strong>${num(x.acceleration_magnitude_g)} g</strong></div><div class="worker-stat"><span>Gyroscope</span><strong>${num(x.gyroscope_magnitude_deg_s)}°/s</strong></div></div><div class="worker-time">Last reading: ${esc(x.timestamp)}</div></article>`}).join('');document.querySelectorAll('.worker-card').forEach(c=>c.onclick=()=>{workerSearch.value=c.dataset.worker;dangerOnly=false;refreshAll()})}catch(e){latestWorkers.textContent='Unable to load worker status.'}}
+function metrics(s){totalCount.textContent=s.total_records??0;workerCount.textContent=s.worker_count??0;nearMissCount.textContent=s.near_miss_count??0;stfCount.textContent=s.stf_count??0;ffhCount.textContent=s.ffh_count??0}
+function rows(a){dataRows.innerHTML=a.length?a.map(x=>`<tr class="${eventClass(x.event)}"><td>${x.id}</td><td>${esc(x.sensor_name)}</td><td>${esc(x.timestamp)}</td><td><strong>${esc(x.event)}</strong></td><td>${num(x.acceleration_magnitude_g)}</td><td>${num(x.gyroscope_magnitude_deg_s)}</td><td>${num(x.accel_x_g)}</td><td>${num(x.accel_y_g)}</td><td>${num(x.accel_z_g)}</td><td>${num(x.gyro_x_deg_s)}</td><td>${num(x.gyro_y_deg_s)}</td><td>${num(x.gyro_z_deg_s)}</td></tr>`).join(''):'<tr><td colspan="12">No records match the selected filters.</td></tr>'}
+async function loadReadings(){statusMessage.textContent='Searching database...';try{const r=await fetch('/api/readings?'+params());const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to retrieve data');rows(d.readings);metrics(d.summary);statusMessage.textContent=`${d.summary.total_records} record(s) found. Showing a maximum of ${d.limit} rows.`}catch(e){statusMessage.textContent='Search error: '+e.message}}
+async function loadCharts(){const r=await fetch('/api/charts?'+params(false)),d=await r.json();const labels=d.daily.map(x=>x.day),near=d.daily.map(x=>x.near_miss),stf=d.daily.map(x=>x.stf),ffh=d.daily.map(x=>x.ffh);if(dailyChart)dailyChart.destroy();dailyChart=new Chart(document.getElementById('dailyChart'),{type:'line',data:{labels,datasets:[{label:'Near Miss',data:near,tension:.3},{label:'STF',data:stf,tension:.3},{label:'FFH',data:ffh,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#d7e4f0'}}},scales:{x:{ticks:{color:'#91a4ba'},grid:{color:'rgba(145,164,186,.08)'}},y:{beginAtZero:true,ticks:{color:'#91a4ba'},grid:{color:'rgba(145,164,186,.1)'}}}}});if(eventChart)eventChart.destroy();eventChart=new Chart(document.getElementById('eventChart'),{type:'doughnut',data:{labels:['Near Miss','STF','FFH'],datasets:[{data:[d.distribution.near_miss,d.distribution.stf,d.distribution.ffh]}]},options:{responsive:true,maintainAspectRatio:false,cutout:'64%',plugins:{legend:{position:'bottom',labels:{color:'#d7e4f0'}}},onClick:(evt,els)=>{if(els.length){eventFilter.value=['Near Miss','STF','FFH'][els[0].index];dangerOnly=false;refreshAll()}}}})}
+async function refreshAll(){await Promise.all([loadReadings(),loadCharts(),loadLatest()])}
+function today(){const n=new Date(),y=n.getFullYear(),m=String(n.getMonth()+1).padStart(2,'0'),d=String(n.getDate()).padStart(2,'0');startDateTime.value=`${y}-${m}-${d}T00:00`;endDateTime.value=`${y}-${m}-${d}T23:59`;dangerOnly=false;refreshAll()} function reset(){workerSearch.value='';startDateTime.value='';endDateTime.value='';eventFilter.value='';dangerOnly=false;refreshAll()}
+applyButton.onclick=()=>{dangerOnly=false;refreshAll()};todayButton.onclick=today;dangerButton.onclick=()=>{eventFilter.value='';dangerOnly=true;refreshAll()};resetButton.onclick=reset;workerSearch.addEventListener('keydown',e=>{if(e.key==='Enter'){dangerOnly=false;refreshAll()}});(async()=>{await loadWorkers();await refreshAll();setInterval(loadLatest,5000)})();
 </script>
-</body>
-</html>
+</body></html>
 """
 
 
@@ -915,6 +156,70 @@ def latest():
     return jsonify({
         row["sensor_name"]: dict(row)
         for row in rows
+    })
+
+
+@app.route("/api/charts")
+def charts():
+    """Return daily incident totals and incident distribution for charts."""
+    if not database_is_ready():
+        return jsonify({"daily": [], "distribution": {"near_miss": 0, "stf": 0, "ffh": 0}})
+
+    worker = request.args.get("worker", "").strip()
+    start = request.args.get("start", "").strip()
+    end = request.args.get("end", "").strip()
+    event = request.args.get("event", "").strip()
+    danger_only = request.args.get("danger_only", "") == "1"
+
+    conditions = []
+    parameters = []
+    if worker:
+        conditions.append("LOWER(sensor_name) LIKE LOWER(?)")
+        parameters.append(f"%{worker}%")
+    if start:
+        conditions.append("timestamp >= ?")
+        parameters.append(start)
+    if end:
+        conditions.append("timestamp <= ?")
+        parameters.append(end)
+    if danger_only:
+        conditions.append("event IN ('Near Miss', 'STF', 'FFH')")
+    elif event:
+        conditions.append("event = ?")
+        parameters.append(event)
+
+    where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+
+    with get_connection() as connection:
+        daily_rows = connection.execute(
+            f"""
+            SELECT substr(timestamp, 1, 10) AS day,
+                   SUM(CASE WHEN event = 'Near Miss' THEN 1 ELSE 0 END) AS near_miss,
+                   SUM(CASE WHEN event = 'STF' THEN 1 ELSE 0 END) AS stf,
+                   SUM(CASE WHEN event = 'FFH' THEN 1 ELSE 0 END) AS ffh
+            FROM sensor_readings
+            {where_clause}
+            GROUP BY substr(timestamp, 1, 10)
+            HAVING near_miss > 0 OR stf > 0 OR ffh > 0
+            ORDER BY day
+            """,
+            parameters,
+        ).fetchall()
+
+        distribution = connection.execute(
+            f"""
+            SELECT SUM(CASE WHEN event = 'Near Miss' THEN 1 ELSE 0 END) AS near_miss,
+                   SUM(CASE WHEN event = 'STF' THEN 1 ELSE 0 END) AS stf,
+                   SUM(CASE WHEN event = 'FFH' THEN 1 ELSE 0 END) AS ffh
+            FROM sensor_readings
+            {where_clause}
+            """,
+            parameters,
+        ).fetchone()
+
+    return jsonify({
+        "daily": [dict(row) for row in daily_rows],
+        "distribution": {key: (value or 0) for key, value in dict(distribution).items()},
     })
 
 
